@@ -19,8 +19,8 @@ rsa = "0.9"
 sha1 = { version = "0.10.5", features = ["oid"] }
 sha2 = { version = "0.10.6", features = ["oid"] }
 signature = "2.2"
-ssh-encoding = { version = "0.2", features = ["bytes"] }
-ssh-key = { version = "=0.6.10", features = [
+ssh-encoding = { tag = "v0.6.8", features = ["bytes"], git = "https://github.com/zaczkows/russh-SSH" }
+ssh-key = { tag = "v0.6.8", features = [
     "ed25519",
     "rsa",
     "rsa-sha1",
@@ -30,7 +30,7 @@ ssh-key = { version = "=0.6.10", features = [
     "encryption",
     "ppk",
     "hazmat-allow-insecure-rsa-keys",
-], package = "internal-russh-forked-ssh-key" }
+], git = "https://github.com/zaczkows/russh-SSH" }
 thiserror = "1.0.30"
 tokio = { version = "1.17.0" }
 tokio-stream = { version = "0.1.3", features = ["net", "sync"] }
