@@ -40,7 +40,7 @@ mod compress {
 
         tokio::spawn(async move {
             let (socket, _) = socket.accept().await.unwrap();
-            let server = sh.new_client(socket.peer_addr().ok());
+            let server = sh.new_client(socket.peer_addr().unwrap()).unwrap();
             server::run_stream(config, socket, server).await.unwrap();
         });
 
@@ -82,10 +82,10 @@ mod compress {
 
     impl server::Server for Server {
         type Handler = Self;
-        fn new_client(&mut self, _: Option<std::net::SocketAddr>) -> Self {
+        fn new_client(&mut self, _: std::net::SocketAddr) -> Option<Self> {
             let s = self.clone();
             self.id += 1;
-            s
+            Some(s)
         }
     }
 
@@ -596,7 +596,7 @@ mod server_kex_junk {
         });
 
         let (socket, _) = socket.accept().await.unwrap();
-        let server = sh.new_client(socket.peer_addr().ok());
+        let server = sh.new_client(socket.peer_addr().unwrap()).unwrap();
         let rs = server::run_stream(config, socket, server).await.unwrap();
 
         // May not panic
@@ -608,8 +608,8 @@ mod server_kex_junk {
 
     impl server::Server for Server {
         type Handler = Self;
-        fn new_client(&mut self, _: Option<std::net::SocketAddr>) -> Self {
-            self.clone()
+        fn new_client(&mut self, _: std::net::SocketAddr) -> Option<Self> {
+            Some(self.clone())
         }
     }
 

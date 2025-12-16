@@ -180,8 +180,8 @@ impl Server {
 impl russh::server::Server for Server {
     type Handler = Self;
 
-    fn new_client(&mut self, _: Option<std::net::SocketAddr>) -> Self::Handler {
-        self.clone()
+    fn new_client(&mut self, _: std::net::SocketAddr) -> Option<Self::Handler> {
+        Some(self.clone())
     }
 }
 

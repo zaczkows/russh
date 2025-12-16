@@ -16,8 +16,8 @@ struct Server;
 impl russh::server::Server for Server {
     type Handler = SshSession;
 
-    fn new_client(&mut self, _: Option<SocketAddr>) -> Self::Handler {
-        SshSession::default()
+    fn new_client(&mut self, _: SocketAddr) -> Option<Self::Handler> {
+        Some(SshSession::default())
     }
 }
 

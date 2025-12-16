@@ -64,10 +64,10 @@ impl Server {
 
 impl server::Server for Server {
     type Handler = Self;
-    fn new_client(&mut self, _: Option<std::net::SocketAddr>) -> Self {
+    fn new_client(&mut self, _: std::net::SocketAddr) -> Option<Self> {
         let s = self.clone();
         self.id += 1;
-        s
+        Some(s)
     }
     fn handle_session_error(&mut self, _error: <Self::Handler as russh::server::Handler>::Error) {
         eprintln!("Session error: {_error:#?}");

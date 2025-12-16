@@ -134,10 +134,10 @@ impl AppServer {
 
 impl Server for AppServer {
     type Handler = Self;
-    fn new_client(&mut self, _: Option<std::net::SocketAddr>) -> Self {
+    fn new_client(&mut self, _: std::net::SocketAddr) -> Option<Self> {
         let s = self.clone();
         self.id += 1;
-        s
+        Some(s)
     }
 }
 

@@ -9,7 +9,7 @@ mod tests {
     use tokio::net::TcpListener;
 
     // Import client types directly since we're in the client module
-    use crate::client::{connect, Config, Handler};
+    use crate::client::{Config, Handler, connect};
     use crate::keys::PrivateKeyWithHashAlg;
     use crate::server::{self, Auth, Handler as ServerHandler, Server, Session};
     use crate::{ChannelId, SshId}; // Import directly from crate root
@@ -24,10 +24,10 @@ mod tests {
     impl server::Server for TestServer {
         type Handler = Self;
 
-        fn new_client(&mut self, _: Option<std::net::SocketAddr>) -> Self {
+        fn new_client(&mut self, _: std::net::SocketAddr) -> Option<Self> {
             let s = self.clone();
             self.id += 1;
-            s
+            Some(s)
         }
     }
 
@@ -110,7 +110,7 @@ mod tests {
             let (socket, _) = socket.accept().await.unwrap();
 
             // Handle the connection with the server
-            let server_handler = server.new_client(None);
+            let server_handler = server.new_client(socket.peer_addr().unwrap()).unwrap();
             server::run_stream(config, socket, server_handler)
                 .await
                 .unwrap();

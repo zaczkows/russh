@@ -48,13 +48,13 @@ use tokio::net::{TcpListener, ToSocketAddrs};
 use tokio::pin;
 use tokio::sync::{broadcast, mpsc};
 
-use crate::cipher::{clear, OpeningKey};
-use crate::kex::dh::groups::{DhGroup, BUILTIN_SAFE_DH_GROUPS, DH_GROUP14};
+use crate::cipher::{OpeningKey, clear};
+use crate::kex::dh::groups::{BUILTIN_SAFE_DH_GROUPS, DH_GROUP14, DhGroup};
 use crate::kex::{KexProgress, SessionKexState};
 use crate::session::*;
 use crate::ssh_read::*;
 use crate::sshbuffer::*;
-use crate::{*};
+use crate::*;
 
 mod kex;
 mod session;
@@ -834,7 +834,7 @@ pub trait Server {
     /// The type of handlers.
     type Handler: Handler + Send + 'static;
     /// Called when a new client connects.
-    fn new_client(&mut self, peer_addr: Option<std::net::SocketAddr>) -> Self::Handler;
+    fn new_client(&mut self, peer_addr: std::net::SocketAddr) -> Option<Self::Handler>;
     /// Called when an active connection fails.
     fn handle_session_error(&mut self, _error: <Self::Handler as Handler>::Error) {}
 
@@ -873,8 +873,13 @@ pub trait Server {
                                 let mut shutdown_rx = shutdown_tx2.subscribe();
 
                                 let config = config.clone();
-                                // NOTE: For backwards compatibility, we keep the Option signature as changing it would be a breaking change.
-                                let handler = self.new_client(Some(peer_addr));
+                                let handler = match self.new_client(peer_addr){
+                                    Some(h) => h,
+                                    None => {
+                                        debug!("Skipping connection from {}", peer_addr);
+                                        continue
+                                    },
+                                };
                                 let error_tx = error_tx.clone();
 
                                 russh_util::runtime::spawn(async move {
